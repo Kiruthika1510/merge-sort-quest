@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Merge Sort Quest — Correct Algorithm</title>
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg1:#12082f;--bg2:#061c38;--card:rgba(18,25,60,.86);--line:rgba(255,255,255,.13);
+  --text:#f7fbff;--muted:#b8c2e2;--pink:#ff43cb;--cyan:#32e9ff;--purple:#8f70ff;
+  --yellow:#ffd94e;--green:#38e58d;--red:#ff627b;
+}
+body{
+  margin:0;min-height:100vh;color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:
+    radial-gradient(circle at 8% 8%,rgba(255,67,203,.22),transparent 28%),
+    radial-gradient(circle at 92% 12%,rgba(50,233,255,.17),transparent 29%),
+    radial-gradient(circle at 50% 100%,rgba(143,112,255,.22),transparent 38%),
+    linear-gradient(135deg,var(--bg1),var(--bg2));
+}
+main{max-width:1020px;margin:auto;padding:28px 18px 44px}
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:28px;padding:28px;
+  box-shadow:0 20px 70px rgba(0,0,0,.3);backdrop-filter:blur(14px);margin-bottom:18px
+}
+.hero{text-align:center;padding:40px 24px}
+.badge{
+  display:inline-flex;padding:8px 14px;border-radius:999px;font-size:12px;font-weight:900;
+  letter-spacing:.1em;text-transform:uppercase;background:linear-gradient(90deg,rgba(255,67,203,.17),rgba(50,233,255,.15));
+  border:1px solid var(--line)
+}
+h1{font-size:clamp(36px,7vw,64px);line-height:1;margin:18px 0 12px}
+h2{font-size:clamp(25px,4vw,36px);margin:0 0 10px}
+h3{margin:0 0 8px}
+p{line-height:1.55}.muted{color:var(--muted)}
+.topbar{display:flex;justify-content:space-between;gap:16px;align-items:center}
+.label{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8fa0ca;font-weight:900}
+.score{padding:9px 13px;border-radius:999px;border:1px solid rgba(255,217,78,.3);background:rgba(255,217,78,.08);color:#ffe98d;font-weight:900}
+.progress{height:10px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden;margin:12px 0 25px}
+.progress>div{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--pink),var(--purple),var(--cyan));transition:width .35s}
+.array{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:12px;margin:25px 0}
+.num{
+  width:74px;height:74px;border-radius:19px;display:flex;align-items:center;justify-content:center;
+  font-size:25px;font-weight:950;background:linear-gradient(145deg,#2a3774,#17234f);
+  border:1px solid rgba(255,255,255,.17);box-shadow:0 10px 26px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.1)
+}
+.num.small{width:58px;height:58px;border-radius:15px;font-size:20px}
+.num.highlight{border-color:rgba(50,233,255,.75);box-shadow:0 0 0 4px rgba(50,233,255,.08),0 0 30px rgba(50,233,255,.24)}
+.row{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;align-items:center}
+button{
+  border:1px solid rgba(255,255,255,.15);border-radius:14px;background:rgba(255,255,255,.06);
+  color:var(--text);padding:12px 17px;min-height:48px;font-size:16px;font-weight:850;cursor:pointer;
+  transition:.18s transform,.18s box-shadow,.18s border-color
+}
+button:hover{transform:translateY(-2px);border-color:rgba(50,233,255,.65);box-shadow:0 10px 26px rgba(0,0,0,.18)}
+.primary{border:0;background:linear-gradient(135deg,var(--pink),var(--purple));box-shadow:0 12px 32px rgba(143,112,255,.28)}
+.choice{background:linear-gradient(135deg,rgba(50,233,255,.12),rgba(143,112,255,.15))}
+.panel{border:1px solid var(--line);background:rgba(255,255,255,.035);border-radius:20px;padding:20px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.feedback{margin-top:18px;padding:15px 17px;border-radius:16px;border:1px solid var(--line)}
+.ok{background:rgba(56,229,141,.08);border-color:rgba(56,229,141,.42);color:#caffdf}
+.bad{background:rgba(255,98,123,.08);border-color:rgba(255,98,123,.42);color:#ffd3db}
+.formula{
+  margin:18px auto;max-width:760px;padding:17px;border-radius:17px;
+  background:linear-gradient(135deg,rgba(255,67,203,.08),rgba(50,233,255,.07));
+  border:1px solid var(--line);text-align:center
+}
+.codeish{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:900}
+.splitArea{display:flex;justify-content:center;align-items:stretch;gap:10px;flex-wrap:wrap;margin:26px 0}
+.group{padding:16px 18px;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.035)}
+.splitLine{width:4px;border-radius:999px;background:linear-gradient(var(--yellow),var(--pink));align-self:stretch;min-height:90px}
+.stage{
+  display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;
+  margin:25px 0
+}
+.stageArrow{font-size:28px;font-weight:950;color:var(--yellow)}
+.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:24px}
+.rule{padding:15px;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.035)}
+.rule b{display:block;margin-bottom:5px}
+.hidden{display:none}
+@media(max-width:760px){.grid,.rules{grid-template-columns:1fr}.card{padding:20px}.num{width:64px;height:64px}}
+</style>
+</head>
+<body>
+<main>
+<section class="card hero" id="home">
+  <div class="badge">⚡ Learn by playing</div>
+  <h1>Merge Sort Quest</h1>
+  <p class="muted" style="max-width:730px;margin:0 auto 22px">
+    Learn the real Merge Sort algorithm visually: find the split point, sort the smaller parts,
+    then merge them by repeatedly taking the smaller front value.
+  </p>
+  <div class="rules">
+    <div class="rule"><b>① Find the midpoint</b><span class="muted">The midpoint is a position, not a data value.</span></div>
+    <div class="rule"><b>② Sort the halves</b><span class="muted">Both halves must be ascending.</span></div>
+    <div class="rule"><b>③ Merge</b><span class="muted">Compare only the front values.</span></div>
+  </div>
+  <button class="primary" id="start" style="margin-top:24px">🚀 Start Game</button>
+</section>
+
+<section class="card hidden" id="game">
+  <div class="topbar">
+    <div>
+      <div class="label" id="phase">Step 1 — Find the Midpoint</div>
+      <div class="muted" id="hint">First decide where the array should split.</div>
+    </div>
+    <div class="row">
+      <div class="score" id="score">⭐ Score: 0</div>
+      <button id="restart">↻ Restart</button>
+    </div>
+  </div>
+  <div class="progress"><div id="progressBar" style="width:25%"></div></div>
+  <div id="area"></div>
+  <div id="feedback" aria-live="polite"></div>
+</section>
+
+<section class="card hidden" id="learn">
+  <h2>🧠 Merge Sort — The Core Idea</h2>
+  <p>Merge Sort repeatedly divides an array into smaller halves until the pieces are trivially sorted, then merges the sorted pieces back together.</p>
+  <div class="rules">
+    <div class="rule"><b>Divide</b><span class="muted">Split around the midpoint.</span></div>
+    <div class="rule"><b>Conquer</b><span class="muted">Sort each smaller half.</span></div>
+    <div class="rule"><b>Combine</b><span class="muted">Merge the sorted halves.</span></div>
+  </div>
+  <p style="margin-top:20px"><b>Time:</b> O(n log n) &nbsp; • &nbsp; <b>Extra space:</b> O(n)</p>
+</section>
+</main>
+
+<script>
+(() => {
+const home=document.getElementById('home');
+const game=document.getElementById('game');
+const learn=document.getElementById('learn');
+const area=document.getElementById('area');
+const feedback=document.getElementById('feedback');
+const phase=document.getElementById('phase');
+const hint=document.getElementById('hint');
+const scoreEl=document.getElementById('score');
+const progress=document.getElementById('progressBar');
+
+let score=0,left=[],right=[],merged=[];
+
+const main=[38,12,27,9];
+const correctFinal=[9,12,27,38];
+
+/*
+  IMPORTANT ALGORITHM NOTE:
+  "mid" is not the numeric value inside the array.
+  For an array of length n, using a left-count split:
+      mid = floor(n / 2)
+  For 4 elements: mid = floor(4/2) = 2.
+  That means: put 2 elements on the left and 2 on the right.
+  With 0-based indices, this is:
+      low=0, high=3, middle=floor((0+3)/2)=1
+      left = [0..1], right = [2..3]
+  So the split is BETWEEN 12 and 27.
+*/
+function nums(a,small=false){
+  return a.map(v=>`<span class="num ${small?'small':''}">${v}</span>`).join('');
+}
+function updateScore(){scoreEl.textContent=`⭐ Score: ${score}`;}
+function setProgress(n){progress.style.width=n+'%';}
+function show(text,ok=true){
+  feedback.className='feedback '+(ok?'ok':'bad');
+  feedback.textContent=text;
+}
+function startGame(){
+  score=0;left=[];right=[];merged=[];updateScore();
+  home.classList.add('hidden');learn.classList.add('hidden');game.classList.remove('hidden');
+  renderMid();
+}
+function renderMid(){
+  phase.textContent='Step 1 — Find the Midpoint';
+  hint.textContent='Find the midpoint position, not a value.';
+  setProgress(25);
+
+  const mid=Math.floor(main.length/2); // 2 elements in the left half
+  area.innerHTML=`
+    <h2>🎯 Find the midpoint</h2>
+    <p>For <b>${main.length} numbers</b>, how many numbers belong in the left half?</p>
+    <div class="array">${nums(main)}</div>
+    <div class="formula">
+      <div class="codeish">mid = floor(n / 2)</div>
+      <div style="margin-top:7px">${main.length} ÷ 2 = <b>${mid}</b></div>
+    </div>
+    <p style="text-align:center"><b>Where should the split line go?</b></p>
+    <div class="row">
+      <button data-split="1">After 1st number</button>
+      <button class="choice" data-split="2">After 2nd number</button>
+      <button data-split="3">After 3rd number</button>
+    </div>
+    <p class="muted" style="text-align:center;margin-top:18px">
+      Notice: there are TWO middle values for an even-sized array (12 and 27).
+      The actual split is between them.
+    </p>
+  `;
+  area.querySelectorAll('[data-split]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const chosen=Number(btn.dataset.split);
+      if(chosen!==mid){
+        score=Math.max(0,score-1);updateScore();
+        show(`❌ Not quite. For 4 numbers, mid = floor(4/2) = 2, so the split must be after the 2nd number.`,false);
+        return;
+      }
+      score+=10;updateScore();
+      show(`✅ Correct! mid = 2. The split goes BETWEEN 12 and 27.`,true);
+      setTimeout(renderSplit,650);
+    });
+  });
+  show('Choose where the split should happen.',true);
+}
+
+function renderSplit(){
+  phase.textContent='Step 1 — Midpoint Found';
+  hint.textContent='Now we split the array using the midpoint.';
+  setProgress(33);
+  left=[38,12];right=[27,9];
+
+  area.innerHTML=`
+    <h2>✂️ Split the array</h2>
+    <p>Because <b>mid = 2</b>, the first 2 elements form the left half and the remaining 2 form the right half.</p>
+    <div class="splitArea">
+      <div class="group"><div class="label">Left half</div><div class="row" style="margin-top:10px">${nums(left,true)}</div></div>
+      <div class="splitLine"></div>
+      <div class="group"><div class="label">Right half</div><div class="row" style="margin-top:10px">${nums(right,true)}</div></div>
+    </div>
+    <div class="formula">
+      <b>[38, 12, 27, 9]</b> → <b>[38, 12]</b> + <b>[27, 9]</b>
+    </div>
+    <button class="primary" id="toSort">Continue to Sorting →</button>
+  `;
+  document.getElementById('toSort').addEventListener('click',renderSort);
+  show('✅ Split complete. Now each half must be sorted.',true);
+}
+
+function renderSort(){
+  phase.textContent='Step 2 — Sort the Halves';
+  hint.textContent='A merge step is only valid when both halves are already sorted.';
+  setProgress(50);
+
+  let leftOK=false,rightOK=false;
+  area.innerHTML=`
+    <h2>🔀 Sort both halves</h2>
+    <p>Choose the ascending order for each half.</p>
+    <div class="grid">
+      <div class="panel">
+        <div class="label">Left half</div>
+        <div class="array" style="margin:17px 0">${nums([38,12],true)}</div>
+        <div class="row">
+          <button data-s="lw">[38, 12]</button>
+          <button class="choice" data-s="lc">[12, 38]</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="label">Right half</div>
+        <div class="array" style="margin:17px 0">${nums([27,9],true)}</div>
+        <div class="row">
+          <button data-s="rw">[27, 9]</button>
+          <button class="choice" data-s="rc">[9, 27]</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="label">Rule</div>
+        <h3>Smallest → largest</h3>
+        <p class="muted">Do not merge unsorted halves. That would not be the Merge Sort algorithm.</p>
+      </div>
+    </div>
+  `;
+  area.querySelectorAll('[data-s]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const s=btn.dataset.s;
+      if(s==='lc'){
+        if(!leftOK){score+=5;leftOK=true} show('✅ Left half sorted: [12, 38].',true);
+      }else if(s==='rc'){
+        if(!rightOK){score+=5;rightOK=true} show('✅ Right half sorted: [9, 27].',true);
+      }else{
+        score=Math.max(0,score-1);show('❌ That half is not ascending. Try again.',false);
+      }
+      updateScore();
+      if(leftOK&&rightOK){left=[12,38];right=[9,27];setTimeout(renderMerge,500)}
+    });
+  });
+  show('Sort BOTH halves before merging.',true);
+}
+
+function renderMerge(){
+  merged=[];
+  phase.textContent='Step 3 — Merge';
+  hint.textContent='Compare the front value of each sorted half.';
+  setProgress(75);
+  mergeUI();
+  show('Compare 12 and 9. Which front value is smaller?',true);
+}
+function mergeUI(){
+  const lv=left[0],rv=right[0];
+  area.innerHTML=`
+    <h2>🧩 Merge step by step</h2>
+    <p>At each move, compare only the two front values.</p>
+    <div class="grid">
+      <div class="panel"><div class="label">Left sorted half</div><div class="array" style="margin:15px 0">${nums(left,true)||'<span class="muted">empty</span>'}</div></div>
+      <div class="panel"><div class="label">Right sorted half</div><div class="array" style="margin:15px 0">${nums(right,true)||'<span class="muted">empty</span>'}</div></div>
+      <div class="panel"><div class="label">Merged so far</div><div class="array" style="margin:15px 0">${nums(merged,true)||'<span class="muted">empty</span>'}</div></div>
+    </div>
+    <div class="row">
+      ${lv!==undefined?`<button class="choice" data-side="L">⬅ Take ${lv}</button>`:''}
+      ${rv!==undefined?`<button class="choice" data-side="R">Take ${rv} ➡</button>`:''}
+    </div>
+  `;
+  area.querySelectorAll('[data-side]').forEach(b=>b.addEventListener('click',()=>mergePick(b.dataset.side)));
+}
+function mergePick(side){
+  const lv=left.length?left[0]:Infinity,rv=right.length?right[0]:Infinity;
+  const correct=lv<=rv?'L':'R';
+  if(side!==correct){
+    score=Math.max(0,score-1);updateScore();
+    show(`❌ Wrong. Compare ${lv} and ${rv}; take the smaller front value.`,false);
+    return;
+  }
+  const v=side==='L'?left.shift():right.shift();
+  merged.push(v);score+=5;updateScore();
+  if(!left.length&&!right.length){
+    if(JSON.stringify(merged)!==JSON.stringify(correctFinal)){
+      show('❌ Something went wrong. Final result is not correct, so the game will not finish.',false);
+      return;
+    }
+    renderComplete();
+  }else{
+    mergeUI();
+    show(`✅ Correct! ${v} was the smaller front value.`,true);
+  }
+}
+function renderComplete(){
+  phase.textContent='Step Complete';
+  hint.textContent='The first Merge Sort example is finished correctly.';
+  setProgress(89);
+  area.innerHTML=`
+    <h2>🎉 Perfect Merge!</h2>
+    <p>Starting from the original unsorted array, the correct Merge Sort flow was:</p>
+    <div class="stage">
+      <span class="codeish">[38,12,27,9]</span><span class="stageArrow">→</span>
+      <span class="codeish">[38,12] + [27,9]</span><span class="stageArrow">→</span>
+      <span class="codeish">[12,38] + [9,27]</span><span class="stageArrow">→</span>
+      <span class="codeish">[9,12,27,38]</span>
+    </div>
+    <button class="primary" id="challenge">🔥 Final Challenge</button>
+  `;
+  document.getElementById('challenge').addEventListener('click',challenge);
+  show('✅ The algorithm was followed in the correct order: divide → sort recursively → merge.',true);
+}
+function challenge(){
+  left=[8,19,27];right=[12,21,30];merged=[];
+  phase.textContent='Final Challenge';
+  hint.textContent='Merge without hints.';
+  setProgress(96);
+  area.innerHTML=`
+    <h2>🏆 Final Challenge</h2>
+    <p>Merge these two already-sorted halves.</p>
+    <div class="grid">
+      <div class="panel"><div class="label">Left</div><div class="array" style="margin:16px 0">${nums(left,true)}</div></div>
+      <div class="panel"><div class="label">Right</div><div class="array" style="margin:16px 0">${nums(right,true)}</div></div>
+      <div class="panel"><div class="label">Result</div><div class="array" style="margin:16px 0" id="result"></div></div>
+    </div>
+    <div class="row" id="choices"></div>
+  `;
+  challengeChoices();
+  show('Compare the two front values and choose the smaller.',true);
+}
+function challengeChoices(){
+  const c=document.getElementById('choices');
+  c.innerHTML=(left.length?`<button class="choice" data-side="L">⬅ Take ${left[0]}</button>`:'')+
+             (right.length?`<button class="choice" data-side="R">Take ${right[0]} ➡</button>`:'');
+  c.querySelectorAll('[data-side]').forEach(b=>b.addEventListener('click',()=>{
+    const lv=left.length?left[0]:Infinity,rv=right.length?right[0]:Infinity;
+    const correct=lv<=rv?'L':'R';
+    if(b.dataset.side!==correct){
+      score=Math.max(0,score-1);updateScore();show(`❌ Wrong. Compare ${lv} and ${rv}. Choose the smaller.`,false);return;
+    }
+    merged.push(b.dataset.side==='L'?left.shift():right.shift());score+=5;updateScore();
+    document.getElementById('result').innerHTML=nums(merged,true);
+    if(!left.length&&!right.length){
+      c.innerHTML='<div class="feedback ok"><b>🏆 Challenge complete!</b><br>Final result: [8, 12, 19, 21, 27, 30]<br><button class="primary" id="finish" style="margin-top:12px">Finish & Learn ✨</button></div>';
+      document.getElementById('finish').addEventListener('click',finish);
+      show('✅ Perfect merge. Every accepted move is algorithmically correct.',true);
+    }else challengeChoices();
+  }));
+}
+function finish(){
+  phase.textContent='Finished';
+  hint.textContent='You completed the full learning path.';
+  setProgress(100);
+  area.innerHTML=`
+    <h2>🌟 You Mastered Merge Sort</h2>
+    <p>Final score: <b>${score}</b></p>
+    <div class="rules">
+      <div class="rule"><b>Divide</b><span class="muted">For n elements, split at mid = floor(n/2) elements in the left half.</span></div>
+      <div class="rule"><b>Sort</b><span class="muted">Recursively sort each smaller half until single-element arrays.</span></div>
+      <div class="rule"><b>Merge</b><span class="muted">Repeatedly choose the smaller front element.</span></div>
+    </div>
+  `;
+  learn.classList.remove('hidden');
+  show(`🎉 Great work! Final score: ${score}. The midpoint is a split POSITION — not necessarily a value.`,true);
+}
+document.getElementById('start').addEventListener('click',startGame);
+document.getElementById('restart').addEventListener('click',startGame);
+})();
+</script>
+</body>
+</html>
